@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Document</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous"
+    ></script>
+
+    <link href="test.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container">
+      <input id="search" placeholder="검색어입력" />
+    </div>
+    <div class="container">
+      <div class="search_box active"></div>
+    </div>
+    <div class="container">
+      <div class="row product-list">
+        <!-- <div class="col-md-3">
+        <img src="">
+        <h4>상품명 : </h4>
+        <p>가격 : </p>
+      </div> -->
+      </div>
+    </div>
+
+    <div class="container basket-wrap" style="background: #e2e2e2">
+      <h4>장바구니 (드래그 가능)</h4>
+      <div class="row basket"></div>
+    </div>
+    <div class="container my-3">
+      <h4>최종가격</h4>
+      <p class="final-price"></p>
+      <button class="buy">구매하기</button>
+    </div>
+
+    <div class="modal1" style="display: none">
+      <div class="white-bg">
+        <h4>성함</h4>
+        <input type="text" id="name" />
+        <h4>연락처</h4>
+        <input type="text" id="phone" />
+        <button class="show-receipt">입력완료</button>
+        <div>
+          <button class="close">닫기</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal2" style="display: none">
+      <div class="white-bg">
+        <h4>영수증</h4>
+        <canvas id="canvas" width="350" height="350"></canvas>
+        <div>
+          <button class="close">닫기</button>
+        </div>
+      </div>
+    </div>
+    <!-- ~시작 먼저 json비동기 가져와
+  "~시화면에 모든 상품들이
+  products.id이런식으로 products의 {} 마다 돌려가며
+  그안의 products.id ,products.title + 태그 를 append시켜준다
+  단 드래그해야할때 , 담기버튼누를때 div,button 둘 다의 고유번호 data-id값을
+  넣어야한다끝~.
+  ~시 드래그하면 장바구니에담기 add()
+  드래그 하면은 좀더 김
+  3가지로나눠야함
+  1.$시작디브상자.드래그스타트
+  e.transfer setData ID, dataset-id
+  2.$앤모르겟다.드래그오버
+  e.preventDefalut
+  3.드랍
+  e.transger getData Id
+  
+  ~담기 버튼누르면 장바구니에 담기 add()
+  
+  function add {
+  여기서 중복될만한것 담아지면 count가 1개씩 올라가야함
+  let 몇번째 = cart.findIndex a {a.id === product.id}
+  {장바구니에 담긴게 없었다면 몇번쨰 == -1
+  네모에 모든 product {}들이 들어가있어야하는데 그 과정을 안했네 실수
+  let 네모 = product.find return a.id == cart.id
+  네모.count = 1 (무에서 유2개 창조하기 권법 이거 안됨 네모 만들면 .count
+  는 굳이 let 이런거 지정안해줘도됨 속성이니깐 
+  cart push 네모
+  
+  }
+  있었다면 
+  count++
+  }
+  
+  장바구니push하는게 있었는데 왜했지? 어디에 했지?
+  아 최종적으로 내가 만들고싶은 형태는
+  [{},{}]그러기위해선 json products의 {}요소들을 어디에 네모에 저장한후에
+  cart가 [] 잖아 {}들을 묶기위한 cart에 네모를 push하는거지
+  
+  -------
+  검색창에 입려하면
+  .on.input
+  let 검색어 = input.val()
+  products.filter a if a includes 검색어
+  새로운디브 html("")
+  새로운디브 .append a.title a.id ... -->
+
+    <script>
+      let products = [];
+      let cart = [];
+      //====================
+      //상품진열기능
+      //====================
+      $.get("store.json").then((data) => {
+        products = data.products;
+        products.forEach((a) => {
+          $(".product-list").append(`
+          <div class="col-md-3">
+            <div class="item" draggable="true" data-id="${a.id}">
+              <img src="${a.photo}">
+              <h4>${a.title}</h4>
+              <h4>${a.brand}</h4>
+              <p>가격 : ${a.price}</p>
+              <button class="add" data-id="${a.id}">담기</button>
+            </div>
+          </div>`);
+        });
+        //====================
+        //장바구니 담는기능
+        //====================
+
+        function add(id) {
+          let i = cart.findIndex((cart) => {
+            return cart.id == id;
+          });
+          if (i == -1) {
+            let product = products.find((a) => {
+              return a.id == id;
+            });
+            console.log(product);
+            product.count = 1;
+            cart.push(product);
+          } else {
+            cart[i].count++;
+          }
+          $(".basket").html("");
+          cart.forEach((a) => {
+            $(".basket").append(`
+            <div class="col-md-3 bg-white">
+              <img src="${a.photo}">
+              <h4>${a.title}</h4>
+              <h4>${a.brand}</h4>
+              <p>${a.price}</p>
+              <input type="number" value="${a.count}" class="item-count w-100">
+          </div>`);
+          });
+
+          let finalPrice = 0;
+          cart.forEach((a) => {
+            finalPrice += a.price * a.count;
+          });
+          $(".final-price").text(finalPrice + "원");
+        }
+        $(".add").on("click", function (e) {
+          let id = e.target.dataset.id;
+          add(id);
+        });
+        //.add 버튼 클릭하면 끝
+        //====================
+        //드래그로 장바구니 추가기능
+        //====================
+        $(".item").on("dragstart", function (e) {
+          e.originalEvent.dataTransfer.setData("id", e.target.dataset.id);
+        });
+
+        $(".basket").on("dragover", function (e) {
+          e.preventDefault();
+        });
+
+        $(".basket").on("drop", function (e) {
+          let productId = e.originalEvent.dataTransfer.getData("id");
+          console.log(productId, `productId`);
+          //신기한건 console.log 삭제하면 안됨
+          //여기서 장바구니 추가기능 똑같이 만들면 되는데
+          //귀찮아서 그냥 $('.add')버튼 강제 클릭으로 대체함
+          add(productId);
+        });
+        //===========================
+        //검색기능 + 담기기능 추가
+        //===========================
+        $("#search").on("input", function () {
+          let searchWord = $("#search").val();
+          let searchProducts = products.filter((a) => {
+            return a.title.includes(searchWord) || a.brand.includes(searchWord);
+          });
+
+          $(".search_box").html("");
+          if (searchWord == "") {
+            $(this).removeClass("active");
+          } else {
+            $(this).addClass("active");
+            searchProducts.forEach((a) => {
+              $(".search_box").append(`
+            <div class="col-md-2">
+              <div class="item" draggable="true" data-id="${a.id}">
+                <img src="${a.photo}">
+                <h4>${a.title}</h4>
+                <h4>${a.brand}</h4>
+                <p>가격 : ${a.price}</p>
+                <button class="add" data-id="${a.id}">담기</button>
+              </div>
+            </div>`);
+            });
+            $(".add").on("click", function (e) {
+              let id = e.target.dataset.id;
+              add(id);
+            });
+          }
+        });
+      });
+      //$.get 끝
+    </script>
+  </body>
+</html>
