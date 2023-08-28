@@ -66,51 +66,10 @@
         </div>
       </div>
     </div>
-    <!-- ~시작 먼저 json비동기 가져와
-  "~시화면에 모든 상품들이
-  products.id이런식으로 products의 {} 마다 돌려가며
-  그안의 products.id ,products.title + 태그 를 append시켜준다
-  단 드래그해야할때 , 담기버튼누를때 div,button 둘 다의 고유번호 data-id값을
-  넣어야한다끝~.
-  ~시 드래그하면 장바구니에담기 add()
-  드래그 하면은 좀더 김
-  3가지로나눠야함
-  1.$시작디브상자.드래그스타트
-  e.transfer setData ID, dataset-id
-  2.$앤모르겟다.드래그오버
-  e.preventDefalut
-  3.드랍
-  e.transger getData Id
-  
-  ~담기 버튼누르면 장바구니에 담기 add()
-  
-  function add {
-  여기서 중복될만한것 담아지면 count가 1개씩 올라가야함
-  let 몇번째 = cart.findIndex a {a.id === product.id}
-  {장바구니에 담긴게 없었다면 몇번쨰 == -1
-  네모에 모든 product {}들이 들어가있어야하는데 그 과정을 안했네 실수
-  let 네모 = product.find return a.id == cart.id
-  네모.count = 1 (무에서 유2개 창조하기 권법 이거 안됨 네모 만들면 .count
-  는 굳이 let 이런거 지정안해줘도됨 속성이니깐 
-  cart push 네모
-  
-  }
-  있었다면 
-  count++
-  }
-  
-  장바구니push하는게 있었는데 왜했지? 어디에 했지?
-  아 최종적으로 내가 만들고싶은 형태는
-  [{},{}]그러기위해선 json products의 {}요소들을 어디에 네모에 저장한후에
-  cart가 [] 잖아 {}들을 묶기위한 cart에 네모를 push하는거지
-  
-  -------
-  검색창에 입려하면
-  .on.input
-  let 검색어 = input.val()
-  products.filter a if a includes 검색어
-  새로운디브 html("")
-  새로운디브 .append a.title a.id ... -->
+    일단 계산기 만들기 계산하는법 : 1. 상품가격 * 상품개수 = 상품별 가격 2.
+    상품별 가격들을 다 더한다 3. 최종가격에 넣는다 버튼을 누르면 모달창이 뜨고
+    모달창에는 이름, 연락처, 버튼이 뜬다 버튼을 누르면 1. 이름, 연락처,
+    최종가격이 나오는 영수증이 뜬다
 
     <script>
       let products = [];
@@ -162,6 +121,9 @@
           </div>`);
           });
 
+          cal();
+        }
+        function cal() {
           let finalPrice = 0;
           cart.forEach((a) => {
             finalPrice += a.price * a.count;
@@ -188,8 +150,6 @@
           let productId = e.originalEvent.dataTransfer.getData("id");
           console.log(productId, `productId`);
           //신기한건 console.log 삭제하면 안됨
-          //여기서 장바구니 추가기능 똑같이 만들면 되는데
-          //귀찮아서 그냥 $('.add')버튼 강제 클릭으로 대체함
           add(productId);
         });
         //===========================
@@ -225,6 +185,27 @@
           }
         });
       });
+      $(".buy").on("click", function () {
+        $(".modal1").show();
+        $(".show-receipt").on("click", function () {
+          $(".modal1").hide();
+          $(".modal2").show();
+          let name = $("#name").val();
+          let phone = $("#phone").val();
+          let finalPrice = $(".final-price").text();
+          let canvas = document.getElementById("canvas");
+          let ctx = canvas.getContext("2d");
+          ctx.font = "20px Arial";
+          ctx.fillText(`이름 : ${name}`, 10, 50);
+          ctx.fillText(`연락처 : ${phone}`, 10, 100);
+          ctx.fillText(`최종가격 : ${finalPrice}`, 10, 150);
+        });
+      });
+      $(".close").on("click", function () {
+        $(".modal1").hide();
+        $(".modal2").hide();
+      });
+
       //$.get 끝
     </script>
   </body>
